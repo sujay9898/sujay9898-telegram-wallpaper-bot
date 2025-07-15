@@ -1,3 +1,6 @@
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, CallbackQueryHandler,
@@ -205,6 +208,9 @@ def send_email(name, email, wp_name, download_link):
 
 # ==== Main ====
 if __name__ == "__main__":
+    # Start dummy HTTP server for Render (so it won't timeout)
+    threading.Thread(target=run_web_server, daemon=True).start()
+
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
@@ -221,8 +227,6 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(handle_preview, pattern="^preview_"))
     app.add_handler(conv_handler)
-    app.add_handler(CommandHandler("catalog", catalog))
-    app.add_handler(CommandHandler("tap", tap))
 
     print("✅ Bot is running...")
     app.run_polling()
