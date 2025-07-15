@@ -1,7 +1,7 @@
 import os
 os.environ["GMAIL_USER"] = "filmyteacare@gmail.com"
 os.environ["GMAIL_PASSWORD"] = "sxakhsvaumpoqbcb"
-os.environ["BOT_TOKEN"] = "8149637331:AAEv_2qhPiXJIx1Fxk1P5o7myOeyp81ih90"
+os.environ["BOT_TOKEN"] = "8149637331:AAG9ejLSy5PF66Ea6KRTyGR3Kb2r0QbEmEQ"
 import os
 import smtplib
 import threading
