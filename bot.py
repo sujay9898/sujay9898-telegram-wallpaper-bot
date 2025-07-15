@@ -171,14 +171,9 @@ if __name__ == "__main__":
 
     import time
 
-while True:
-    try:
-        print("✅ Bot is running...")
-        app.run_polling()
-    except Exception as e:
-        print("❌ Bot crashed with error:", e)
-    print("🔁 Restarting in 60 seconds...")
-    time.sleep(60)
+if __name__ == "__main__":
+    print("✅ Bot is running...")
+    app.run_polling()
 
 
 
