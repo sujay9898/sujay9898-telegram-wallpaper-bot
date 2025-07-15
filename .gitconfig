@@ -17,3 +17,5 @@
 [user]
 	name = Your Name
 	email = youremail@example.com
+[credential]
+	helper = store
