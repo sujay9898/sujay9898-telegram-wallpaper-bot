@@ -1,4 +1,8 @@
 import os
+os.environ["GMAIL_USER"] = "filmyteacare@gmail.com"
+os.environ["GMAIL_PASSWORD"] = "sxakhsvaumpoqbcb"
+os.environ["BOT_TOKEN"] = "8149637331:AAEv_2qhPiXJIx1Fxk1P5o7myOeyp81ih90"
+import os
 import smtplib
 import threading
 from flask import Flask
@@ -165,8 +169,17 @@ if __name__ == "__main__":
     app.add_handler(CallbackQueryHandler(handle_preview, pattern="^preview_"))
     app.add_handler(conv_handler)
 
-    print("✅ Bot is running...")
-    app.run_polling()
+    import time
+
+while True:
+    try:
+        print("✅ Bot is running...")
+        app.run_polling()
+    except Exception as e:
+        print("❌ Bot crashed with error:", e)
+    print("🔁 Restarting in 60 seconds...")
+    time.sleep(60)
+
 
 
 
