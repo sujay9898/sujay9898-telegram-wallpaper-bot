@@ -207,8 +207,17 @@ def send_email(name, email, wp_name, download_link):
         raise
 
 # ==== Main ====
+def run_web_server():
+    class DummyHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"Bot is alive.")
+
+    server = HTTPServer(('0.0.0.0', 10000), DummyHandler)
+    server.serve_forever()
+
 if __name__ == "__main__":
-    # Start dummy HTTP server for Render (so it won't timeout)
     threading.Thread(target=run_web_server, daemon=True).start()
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()
