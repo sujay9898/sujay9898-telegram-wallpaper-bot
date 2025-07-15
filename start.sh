@@ -1,3 +1,3 @@
 #!/bin/bash
-echo "Starting Telegram Bot..."
+echo "Starting Telegram Bot with dummy web server..."
 python bot.py
