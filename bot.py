@@ -9,8 +9,13 @@ from email.mime.multipart import MIMEMultipart
 import asyncio
 
 # ====== Gmail Settings ======
-GMAIL_USER = "filmyteacare@gmail.com"
-GMAIL_APP_PASSWORD = "sxakhsvaumpoqbcb"  # Use your actual App Password
+# NEW
+import os
+
+GMAIL_USER = os.getenv("GMAIL_USER")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_PASSWORD")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
 
 # ====== States ======
 GET_NAME, GET_EMAIL = range(2)
@@ -200,7 +205,7 @@ def send_email(name, email, wp_name, download_link):
 
 # ==== Main ====
 if __name__ == "__main__":
-    app = ApplicationBuilder().token("8149637331:AAHONVcBVJ6MGzBr0CjVJZX71eA_sgphGSk").build()
+   app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CallbackQueryHandler(ask_name, pattern="^get_now$")],
