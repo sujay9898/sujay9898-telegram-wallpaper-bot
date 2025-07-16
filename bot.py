@@ -175,30 +175,26 @@ def send_email(name, email, wp_name, download_link):
 if __name__ == "__main__":
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-   conv_handler = ConversationHandler(
-    entry_points=[],
-    states={
-        GET_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
-        GET_EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_email)],
-    },
-    fallbacks=[],
-    per_message=False,
-    per_chat=True
-)
-
+    conv_handler = ConversationHandler(
+        entry_points=[CallbackQueryHandler(ask_name, pattern="^get_now$")],
+        states={
+            GET_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
+            GET_EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_email)],
+        },
+        fallbacks=[],
+        per_message=False,
+        per_chat=True
+    )
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("catalog", catalog))
     app.add_handler(CommandHandler("tap", tap))
     app.add_handler(CallbackQueryHandler(handle_preview, pattern="^preview_"))
-    app.add_handler(CallbackQueryHandler(ask_name, pattern="^get_now$"))
     app.add_handler(conv_handler)
 
-    import time
-
-if __name__ == "__main__":
     print("✅ Bot is running...")
     app.run_polling()
+
 
 
 
