@@ -52,23 +52,44 @@ wallpapers = {
 }
 
 # === Start Command ===
+import asyncio  # 🧠 Make sure this is at the top if not already there
+
+# === Updated Start Command ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # 🟢 Welcome message
+    await update.message.reply_text("👋 Welcome to FilmyTea Wallpapers!\n\nUse /catalog to view the collection.")
+
+    # 📄 Send PDF
     try:
         with open("FILMYTEA-WALLPAPER.pdf", "rb") as pdf_file:
             await update.message.reply_document(
                 document=pdf_file,
                 filename="FILMYTEA-WALLPAPER.pdf",
-                caption="📖 Choose your wallpaper from the PDF"
+                caption="📖 Here's your wallpaper catalog"
             )
     except Exception as e:
         await update.message.reply_text("❌ Could not send the wallpaper catalog.")
         print("PDF Error:", e)
+        return
 
+    # ⏳ 5 sec delay → ask if selected
+    await asyncio.sleep(5)
+    await update.message.reply_text("🎨 Did you select your wallpaper?")
+
+    # ⏳ 1 sec delay → send wallpaper name list
+    await asyncio.sleep(1)
+    wp_list = "\n".join([f"🖼 {wp['name']}" for wp in wallpapers.values()])
+    await update.message.reply_text(
+        f"👇 Tap a wallpaper name below to preview:\n\n{wp_list}"
+    )
+
+    # 🖱️ Inline buttons for previews
     keyboard = [
         [InlineKeyboardButton(wp["name"], callback_data=f"preview_{wp_id}")]
         for wp_id, wp in wallpapers.items()
     ]
-    await update.message.reply_text("Tap below to get your wallpaper.", reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text("⬇️ Tap to preview:", reply_markup=InlineKeyboardMarkup(keyboard))
+
 
 # === /catalog command ===
 async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -154,21 +175,23 @@ def send_email(name, email, wp_name, download_link):
 if __name__ == "__main__":
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(ask_name, pattern="^get_now$")],
-        states={
-            GET_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
-            GET_EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_email)],
-        },
-        fallbacks=[],
-        per_message=False,
-        per_chat=True
-    )
+   conv_handler = ConversationHandler(
+    entry_points=[],
+    states={
+        GET_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
+        GET_EMAIL: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_email)],
+    },
+    fallbacks=[],
+    per_message=False,
+    per_chat=True
+)
+
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("catalog", catalog))
     app.add_handler(CommandHandler("tap", tap))
     app.add_handler(CallbackQueryHandler(handle_preview, pattern="^preview_"))
+    app.add_handler(CallbackQueryHandler(ask_name, pattern="^get_now$"))
     app.add_handler(conv_handler)
 
     import time
