@@ -1,4 +1,5 @@
 import os
+import sys
 import smtplib
 import threading
 import asyncio
@@ -143,6 +144,9 @@ def send_email(name, email, wp_name, download_link):
 
 # === Main App ===
 if __name__ == "__main__":
+    if "RUNNING_ON_RENDER" not in os.environ:
+        print("⚠️ You're not on Render — make sure only ONE instance is running!")
+
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
@@ -164,3 +168,4 @@ if __name__ == "__main__":
 
     print("✅ Bot is running...")
     app.run_polling()
+
