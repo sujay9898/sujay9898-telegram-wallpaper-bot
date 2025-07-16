@@ -144,8 +144,15 @@ def send_email(name, email, wp_name, download_link):
 
 # === Main App ===
 if __name__ == "__main__":
+    import time
+
+    # 🟢 Log startup info
+    print("🟢 Bot started at", time.ctime(), "| Location:", os.environ.get("RENDER_EXTERNAL_URL", "Localhost"))
+
+    # ⚠️ Warn if running locally (to avoid double instances)
     if "RUNNING_ON_RENDER" not in os.environ:
         print("⚠️ You're not on Render — make sure only ONE instance is running!")
+
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
