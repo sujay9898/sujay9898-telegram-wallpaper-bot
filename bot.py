@@ -1,10 +1,7 @@
 import os
-os.environ["GMAIL_USER"] = "filmyteacare@gmail.com"
-os.environ["GMAIL_PASSWORD"] = "vsttlgldkdvknzxj"
-os.environ["BOT_TOKEN"] = "8149637331:AAG9ejLSy5PF66Ea6KRTyGR3Kb2r0QbEmEQ"
-import os
 import smtplib
 import threading
+import asyncio
 from flask import Flask
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -17,21 +14,19 @@ from telegram.ext import (
 # === Dummy web server for Render ===
 def run_web_server():
     app = Flask(__name__)
-
     @app.route('/')
     def index():
         print("🔥 Ping received!")
         return 'Bot is alive!'
-
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
 threading.Thread(target=run_web_server, daemon=True).start()
 
-# === Gmail & Bot Settings ===
-GMAIL_USER = os.getenv("GMAIL_USER")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_PASSWORD")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+# === Gmail & Bot Settings (HARDCODED) ===
+GMAIL_USER = "filmyteacare@gmail.com"
+GMAIL_APP_PASSWORD = "vsttlgldkdvknzxj"
+BOT_TOKEN = "8149637331:AAG9ejLSy5PF66Ea6KRTyGR3Kb2r0QbEmEQ"
 
 # === States ===
 GET_NAME, GET_EMAIL = range(2)
@@ -51,13 +46,11 @@ wallpapers = {
     "WP11": {"name": "Virat Hundred", "thumb": "https://res.cloudinary.com/dxv6byz2q/image/upload/v1752478105/2_v4osgw.png", "hd_link": "https://drive.google.com/uc?id=1IufODZCwxwll0zeo23TNXqXqRlGmj1pU"},
 }
 
-import asyncio  # make sure this is at the top
-
-# === ✅ Clean Start Command ===
+# === /start command ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 Welcome to FilmyTea Wallpapers!\n\nUse /catalog to view the collection.")
 
-# === ✅ Updated Catalog Command ===
+# === /catalog command ===
 async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         with open("FILMYTEA-WALLPAPER.pdf", "rb") as pdf_file:
@@ -73,14 +66,29 @@ async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await asyncio.sleep(5)
     await update.message.reply_text("🎨 Did you select your wallpaper?")
-
     await asyncio.sleep(1)
+
     keyboard = [
         [InlineKeyboardButton(wp["name"], callback_data=f"preview_{wp_id}")]
         for wp_id, wp in wallpapers.items()
     ]
     await update.message.reply_text("⬇️ Tap a wallpaper name to preview:", reply_markup=InlineKeyboardMarkup(keyboard))
 
+# === /tap command ===
+async def tap(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("👋 Tap /start to get your wallpaper!")
+
+# === Handle Preview Button ===
+async def handle_preview(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    wp_id = query.data.replace("preview_", "")
+    context.user_data["selected_wp"] = wp_id
+    wp = wallpapers[wp_id]
+
+    keyboard = [[InlineKeyboardButton("🎁 Get Now (without watermark)", callback_data="get_now")]]
+    caption = f"{wp['name']}\n\nPay whatever you want, it supports our art ❤️"
+    await query.message.reply_photo(photo=wp["thumb"], caption=caption, reply_markup=InlineKeyboardMarkup(keyboard))
 
 # === Ask Name ===
 async def ask_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -132,24 +140,6 @@ def send_email(name, email, wp_name, download_link):
         server.starttls()
         server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
         server.send_message(msg)
-        
-# === /tap command ===
-async def tap(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("👋 Tap /start to get your wallpaper!")
-
-
-# === Handle Preview Button ===
-async def handle_preview(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    wp_id = query.data.replace("preview_", "")
-    context.user_data["selected_wp"] = wp_id
-    wp = wallpapers[wp_id]
-
-    keyboard = [[InlineKeyboardButton("🎁 Get Now (without watermark)", callback_data="get_now")]]
-    caption = f"{wp['name']}\n\nPay whatever you want, it supports our art ❤️"
-    await query.message.reply_photo(photo=wp["thumb"], caption=caption, reply_markup=InlineKeyboardMarkup(keyboard))
-
 
 # === Main App ===
 if __name__ == "__main__":
@@ -174,8 +164,3 @@ if __name__ == "__main__":
 
     print("✅ Bot is running...")
     app.run_polling()
-
-
-
-
-
