@@ -134,6 +134,24 @@ def send_email(name, email, wp_name, download_link):
         server.starttls()
         server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
         server.send_message(msg)
+        
+# === /tap command ===
+async def tap(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("👋 Tap /start to get your wallpaper!")
+
+
+# === Handle Preview Button ===
+async def handle_preview(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    wp_id = query.data.replace("preview_", "")
+    context.user_data["selected_wp"] = wp_id
+    wp = wallpapers[wp_id]
+
+    keyboard = [[InlineKeyboardButton("🎁 Get Now (without watermark)", callback_data="get_now")]]
+    caption = f"{wp['name']}\n\nPay whatever you want, it supports our art ❤️"
+    await query.message.reply_photo(photo=wp["thumb"], caption=caption, reply_markup=InlineKeyboardMarkup(keyboard))
+
 
 # === Main App ===
 if __name__ == "__main__":
