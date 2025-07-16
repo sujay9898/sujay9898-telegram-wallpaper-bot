@@ -51,15 +51,14 @@ wallpapers = {
     "WP11": {"name": "Virat Hundred", "thumb": "https://res.cloudinary.com/dxv6byz2q/image/upload/v1752478105/2_v4osgw.png", "hd_link": "https://drive.google.com/uc?id=1IufODZCwxwll0zeo23TNXqXqRlGmj1pU"},
 }
 
-# === Start Command ===
-import asyncio  # 🧠 Make sure this is at the top if not already there
+import asyncio  # make sure this is at the top
 
-# === Updated Start Command ===
+# === ✅ Clean Start Command ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # 🟢 Welcome message
     await update.message.reply_text("👋 Welcome to FilmyTea Wallpapers!\n\nUse /catalog to view the collection.")
 
-    # 📄 Send PDF
+# === ✅ Updated Catalog Command ===
+async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         with open("FILMYTEA-WALLPAPER.pdf", "rb") as pdf_file:
             await update.message.reply_document(
@@ -72,53 +71,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print("PDF Error:", e)
         return
 
-    # ⏳ 5 sec delay → ask if selected
     await asyncio.sleep(5)
     await update.message.reply_text("🎨 Did you select your wallpaper?")
 
-    # ⏳ 1 sec delay → send wallpaper name list
     await asyncio.sleep(1)
     wp_list = "\n".join([f"🖼 {wp['name']}" for wp in wallpapers.values()])
-    await update.message.reply_text(
-        f"👇 Tap a wallpaper name below to preview:\n\n{wp_list}"
-    )
+    await update.message.reply_text(f"👇 Tap a wallpaper name below to preview:\n\n{wp_list}")
 
-    # 🖱️ Inline buttons for previews
     keyboard = [
         [InlineKeyboardButton(wp["name"], callback_data=f"preview_{wp_id}")]
         for wp_id, wp in wallpapers.items()
     ]
     await update.message.reply_text("⬇️ Tap to preview:", reply_markup=InlineKeyboardMarkup(keyboard))
-
-
-# === /catalog command ===
-async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        with open("FILMYTEA-WALLPAPER.pdf", "rb") as pdf_file:
-            await update.message.reply_document(
-                document=pdf_file,
-                filename="FILMYTEA-WALLPAPER.pdf",
-                caption="📖 Here’s your wallpaper catalog"
-            )
-    except Exception as e:
-        await update.message.reply_text("❌ Could not send the wallpaper catalog.")
-        print("PDF Error (catalog):", e)
-
-# === /tap command ===
-async def tap(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("👋 Tap /start to get your wallpaper!")
-
-# === Handle Preview Button ===
-async def handle_preview(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    wp_id = query.data.replace("preview_", "")
-    context.user_data["selected_wp"] = wp_id
-    wp = wallpapers[wp_id]
-
-    keyboard = [[InlineKeyboardButton("🎁 Get Now (without watermark)", callback_data="get_now")]]
-    caption = f"{wp['name']}\n\nPay whatever you want, it supports our art ❤️"
-    await query.message.reply_photo(photo=wp["thumb"], caption=caption, reply_markup=InlineKeyboardMarkup(keyboard))
 
 # === Ask Name ===
 async def ask_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
