@@ -1,6 +1,6 @@
 import os
 os.environ["GMAIL_USER"] = "filmyteacare@gmail.com"
-os.environ["GMAIL_PASSWORD"] = "sxakhsvaumpoqbcb"
+os.environ["GMAIL_PASSWORD"] = "vsttlgldkdvknzxj"
 os.environ["BOT_TOKEN"] = "8149637331:AAG9ejLSy5PF66Ea6KRTyGR3Kb2r0QbEmEQ"
 import os
 import smtplib
@@ -75,14 +75,12 @@ async def catalog(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🎨 Did you select your wallpaper?")
 
     await asyncio.sleep(1)
-    wp_list = "\n".join([f"🖼 {wp['name']}" for wp in wallpapers.values()])
-    await update.message.reply_text(f"👇 Tap a wallpaper name below to preview:\n\n{wp_list}")
-
     keyboard = [
         [InlineKeyboardButton(wp["name"], callback_data=f"preview_{wp_id}")]
         for wp_id, wp in wallpapers.items()
     ]
-    await update.message.reply_text("⬇️ Tap to preview:", reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text("⬇️ Tap a wallpaper name to preview:", reply_markup=InlineKeyboardMarkup(keyboard))
+
 
 # === Ask Name ===
 async def ask_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
